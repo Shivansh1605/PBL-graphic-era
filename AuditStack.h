@@ -4,13 +4,18 @@
 #include <stack>
 #include <string>
 
-class AuditStack {
-private:
-    std::stack<std::string> events;
-
-public:
-    void addEvent(const std::string& event);
-    void showLatestEvents() const;
+using namespace std;
+struct AuditStack
+{
+stack<string> events;
+string electionType;
+string electionTitle;
+    string electionPurpose;
 };
+
+void configureElection(AuditStack &audit);
+void showElectionInfo(AuditStack &audit);
+void addAuditEvent(AuditStack &audit, string event);
+void showAuditEvents(AuditStack &audit);
 
 #endif
