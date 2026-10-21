@@ -4,19 +4,21 @@
 #include <queue>
 #include <string>
 
-struct VoteRequest {
-    std::string voterID;
+using namespace std;
+
+struct VoteRequest
+{
+    string voterID;
     int candidateID;
 };
 
-class VoteQueue {
-private:
-    std::queue<VoteRequest> requests;
-
-public:
-    void enqueue(const VoteRequest& request);
-    bool isEmpty() const;
-    VoteRequest dequeue();
+struct VoteQueue
+{
+    queue<VoteRequest> requests;
 };
+
+void addToQueue(VoteQueue &voteQueue, VoteRequest request);
+bool queueIsEmpty(VoteQueue &voteQueue);
+VoteRequest takeFromQueue(VoteQueue &voteQueue);
 
 #endif
