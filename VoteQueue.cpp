@@ -1,15 +1,20 @@
 #include "VoteQueue.h"
 
-void VoteQueue::enqueue(const VoteRequest& request) {
-    requests.push(request);
+void addToQueue(VoteQueue &voteQueue, VoteRequest request)
+{
+    voteQueue.requests.push(request);
 }
 
-bool VoteQueue::isEmpty() const {
-    return requests.empty();
+bool queueIsEmpty(VoteQueue &voteQueue)
+{
+    return voteQueue.requests.empty();
 }
 
-VoteRequest VoteQueue::dequeue() {
-    VoteRequest request = requests.front();
-    requests.pop();
+VoteRequest takeFromQueue(VoteQueue &voteQueue)
+{
+    VoteRequest request = voteQueue.requests.front();
+    voteQueue.requests.pop();
+
     return request;
 }
+
