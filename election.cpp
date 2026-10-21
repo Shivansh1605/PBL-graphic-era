@@ -9,7 +9,7 @@ Election::Election(VoterManager& vm, CandidateManager& cm)
 void Election::castVote() {
     string id, pin;
     cout << "\n--- Voter Authentication ---\n";
-    cout << "Voter ID: ";
+    cout << "VOTER ID : ";
     cin >> id;
     cout << "PIN: ";
     cin >> pin;
@@ -42,7 +42,7 @@ void Election::castVote() {
         return;
     }
 
-    if (candidateManager.findCandidate(candidateID) == nullptr) {
+    if (candidateManager.findCandidate(candidateID)==nullptr) {
         cout << "Candidate not found. Vote was not recorded.\n";
         return;
     }
@@ -56,7 +56,7 @@ void Election::castVote() {
             audit.addEvent("Vote recorded for voter ID: " + request.voterID);
             cout << "Vote recorded successfully. Thank you!\n";
         } else {
-            cout << "Vote could not be recorded.\n";
+            cout << "Vote was not be recorded.\n";
         }
     }
 }
