@@ -4,27 +4,26 @@
 #include <string>
 #include <vector>
 
-struct Voter {
-    std::string voterID;
-    std::string name;
-    std::string pin;
+using namespace std;
+
+struct Voter
+{
+    string id;
+    string name;
+    string pin;
     bool hasVoted;
 };
 
-class VoterManager {
-private:
-    std::vector<Voter> voters;
-    const std::string fileName = "voters.txt";
-    void loadVoters();
-    void saveVoters() const;
-
-public:
-    VoterManager();
-    bool registerVoter();
-    bool authenticate(const std::string& id, const std::string& pin);
-    Voter* findVoter(const std::string& id);
-    const std::vector<Voter>& getVoters() const;
-    void markVoted(const std::string& id);
+struct VoterManager
+{
+    vector<Voter> list;
 };
+
+void loadVoters(VoterManager &manager);
+void saveVoters(VoterManager &manager);
+int findVoter(VoterManager &manager, string id);
+void registerVoter(VoterManager &manager);
+bool authenticateVoter(VoterManager &manager, string id, string pin);
+void markVoted(VoterManager &manager, int index);
 
 #endif
