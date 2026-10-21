@@ -1,96 +1,129 @@
-#include "voter.h"
 #include <iostream>
 #include <fstream>
 #include <sstream>
+#include "voter.h"
 
 using namespace std;
 
-VoterManager::VoterManager() {
-    loadVoters();
-}
+void loadVoters(VoterManager &manager)
+{
+    manager.list.clear();
 
-void VoterManager::loadVoters() {
-    voters.clear();
-    ifstream file(fileName);
+    ifstream file("voters.txt");
     string line;
 
-    while (getline(file, line)) {
+    while (getline(file, line))
+    {
         stringstream ss(line);
         Voter voter;
         string voted;
-        if (getline(ss, voter.voterID, '|') &&
+
+        if (getline(ss, voter.id, '|') &&
             getline(ss, voter.name, '|') &&
             getline(ss, voter.pin, '|') &&
-            getline(ss, voted, '|')) {
+            getline(ss, voted, '|'))
+        {
             voter.hasVoted = (voted == "1");
-            voters.push_back(voter);
+            manager.list.push_back(voter);
         }
     }
 }
 
-void VoterManager::saveVoters() const {
-    ofstream file(fileName);
-    for (const Voter& voter : voters) {
-        file << voter.voterID << "|" << voter.name << "|"
-             << voter.pin << "|" << (voter.hasVoted ? 1 : 0) << "\n";
+void saveVoters(VoterManager &manager)
+{
+    ofstream file("voters.txt");
+
+    for (int i = 0; i < (int)manager.list.size(); i++)
+    {
+        file << manager.list[i].id << "|"
+             << manager.list[i].name << "|"
+             << manager.list[i].pin << "|"
+             << (manager.list[i].hasVoted ? 1 : 0) << "\n";
     }
 }
 
-bool VoterManager::registerVoter() {
-    string id, name, pin;
+int findVoter(VoterManager &manager, string id)
+{
+    for (int i = 0; i < (int)manager.list.size(); i++)
+    {
+        if (manager.list[i].id == id)
+        {
+            return i;
+        }
+    }
+
+    return -1;
+}
+
+void registerVoter(VoterManager &manager)
+{
+    loadVoters(manager);
+
+    Voter voter;
 
     cout << "\n--- Voter Registration ---\n";
     cout << "Enter voter ID (no spaces): ";
-    cin >> id;
+    cin >> voter.id;
 
-    if (findVoter(id) != nullptr) {
+    if (findVoter(manager, voter.id) != -1)
+    {
         cout << "This voter ID is already registered.\n";
-        return false;
+        return;
     }
 
-    cout << "Enter full name (use underscores instead of spaces): ";
-    cin >> name;
+    cout << "Enter name (use underscores for spaces): ";
+    cin >> voter.name;
 
     cout << "Create a numeric PIN: ";
-    cin >> pin;
+    cin >> voter.pin;
 
-    if (pin.empty()) {
+    if (voter.pin.empty())
+    {
         cout << "PIN cannot be empty.\n";
-        return false;
+        return;
     }
-    for (char ch : pin) {
-        if (ch < '0' || ch > '9') {
+
+    for (int i = 0; i < (int)voter.pin.length(); i++)
+    {
+        if (voter.pin[i] < '0' || voter.pin[i] > '9')
+        {
             cout << "PIN must contain digits only.\n";
-            return false;
+            return;
         }
     }
 
-    voters.push_back({id, name, pin, false});
-    saveVoters();
-    cout << "Registration successful. Keep your voter ID and PIN private.\n";
-    return true;
+    voter.hasVoted = false;
+    manager.list.push_back(voter);
+
+    saveVoters(manager);
+
+    cout << "Registration successful.\n";
 }
 
-bool VoterManager::authenticate(const string& id, const string& pin) {
-    Voter* voter = findVoter(id);
-    return voter != nullptr && voter->pin == pin;
-}
+bool authenticateVoter(VoterManager &manager, string id, string pin)
+{
+    loadVoters(manager);
 
-Voter* VoterManager::findVoter(const string& id) {
-    for (Voter& voter : voters) {
-        if (voter.voterID == id) return &voter;
+    int index = findVoter(manager, id);
+
+    if (index == -1)
+    {
+        return false;
     }
-    return nullptr;
+
+    if (manager.list[index].pin == pin)
+    {
+        return true;
+    }
+
+    return false;
 }
 
-const vector<Voter>& VoterManager::getVoters() const {
-    return voters;
-}
-
-void VoterManager::markVoted(const string& id) {
-    Voter* voter = findVoter(id);
-    if (voter != nullptr) {
-        voter->hasVoted = true;
-        saveVoters();
+void markVoted(VoterManager &manager, int index)
+{
+    if (index >= 0 && index < (int)manager.list.size())
+    {
+        manager.list[index].hasVoted = true;
+        saveVoters(manager);
     }
 }
