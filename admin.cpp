@@ -1,14 +1,70 @@
-#include "admin.h"
 #include <iostream>
+#include "admin.h"
+#include "election.h"
+
 using namespace std;
-Admin::Admin(VoterManager& vm,CandidateManager& cm,Election& e,AuditStack& log):voterManager(vm),candidateManager(cm),election(e),audit(log){}
-void Admin::login(){
-    string password;cout<<"Admin password: ";cin>>password;
-    if(password!="admin123"){cout<<"Incorrect password.\n";audit.addEvent("Failed admin login");return;}
-    audit.addEvent("Admin login successful");int choice=0;
-    do{
-        cout<<"\n--- Admin Panel ---\n1. View results\n2. Add candidate/option\n3. View audit events\n4. View election purpose\n5. Return\nChoice: ";
-        if(!(cin>>choice)){cin.clear();cin.ignore(10000,'\n');cout<<"Enter a number.\n";continue;}
-        switch(choice){case 1:election.showResults();break;case 2:candidateManager.addCandidate();break;case 3:election.showAudit();break;case 4:audit.showElectionInfo();break;case 5:break;default:cout<<"Invalid choice.\n";}
-    }while(choice!=5);
+
+void adminPanel(Admin &admin, CandidateManager &candidates, AuditStack &audit)
+{
+    admin.password = "admin123";
+
+    string enteredPassword;
+
+    cout << "Enter admin password: ";
+    cin >> enteredPassword;
+
+    if (enteredPassword != admin.password)
+    {
+        cout << "Incorrect password.\n";
+        addAuditEvent(audit, "Failed admin login");
+        return;
+    }
+
+    int choice = 0;
+
+    do
+    {
+        cout << "\n--- Admin Panel ---\n";
+        cout << "1. View election results\n";
+        cout << "2. Add candidate/option\n";
+        cout << "3. View audit events\n";
+        cout << "4. View election purpose\n";
+        cout << "5. Return to main menu\n";
+        cout << "Enter choice: ";
+
+        if (!(cin >> choice))
+        {
+            cin.clear();
+            cin.ignore(10000, '\n');
+
+            cout << "Invalid input.\n";
+            continue;
+        }
+
+        if (choice == 1)
+        {
+            displayResults(candidates, audit);
+        }
+        else if (choice == 2)
+        {
+            addCandidate(candidates);
+        }
+        else if (choice == 3)
+        {
+            showAuditEvents(audit);
+        }
+        else if (choice == 4)
+        {
+            showElectionInfo(audit);
+        }
+        else if (choice == 5)
+        {
+            cout << "Returning to main menu.\n";
+        }
+        else
+        {
+            cout << "Invalid choice.\n";
+        }
+
+    } while (choice != 5);
 }
