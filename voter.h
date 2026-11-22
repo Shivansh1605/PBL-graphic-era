@@ -1,29 +1,23 @@
 #ifndef VOTER_H
 #define VOTER_H
-
 #include <string>
-#include <vector>
-
 using namespace std;
 
-struct Voter
+class VoterManager
 {
-    string id;
-    string name;
-    string pin;
-    bool hasVoted;
+private:
+    string ids[100], names[100], pins[100];
+    bool voted[100];
+    int count;
+
+public:
+    VoterManager();
+    void load();
+    void save();
+    int findVoter(string id);
+    void registerVoter();
+    bool checkPIN(string id, string pin);
+    bool hasVoted(string id);
+    void markVoted(string id);
 };
-
-struct VoterManager
-{
-    vector<Voter> list;
-};
-
-void loadVoters(VoterManager &manager);
-void saveVoters(VoterManager &manager);
-int findVoter(VoterManager &manager, string id);
-void registerVoter(VoterManager &manager);
-bool authenticateVoter(VoterManager &manager, string id, string pin);
-void markVoted(VoterManager &manager, int index);
-
 #endif
