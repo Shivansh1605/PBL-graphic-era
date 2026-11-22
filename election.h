@@ -1,27 +1,24 @@
 #ifndef ELECTION_H
 #define ELECTION_H
+#include <string>
+#include "Voter.h"
+#include "Candidate.h"
+#include "DSAWrapper.h"
+using namespace std;
 
-#include "voter.h"
-#include "candidate.h"
-#include "VoteQueue.h"
-#include "AuditStack.h"
-
-
-class Election {
+class ElectionInfo
+{
 private:
-
-    VoterManager& voterManager;
-    CandidateManager& candidateManager;
-    VoteQueue voteQueue;
-    AuditStack audit;
-
-
+    string type, title, purpose;
 public:
-    Election(VoterManager& vm, CandidateManager& cm);
-    void castVote();
-    void showResults() const;
-    void showAudit() const;
-
+    void setup();
+    void show();
 };
 
+class Election
+{
+public:
+    void castVote(VoterManager &voters, CandidateManager &candidates,
+                  VoteQueue &queue, AuditStack &audit);
+};
 #endif
