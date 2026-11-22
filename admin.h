@@ -1,17 +1,12 @@
 #ifndef ADMIN_H
 #define ADMIN_H
-
-#include <string>
-#include "candidate.h"
-#include "AuditStack.h"
-
-using namespace std;
-
-struct Admin
+#include "Candidate.h"
+class Admin
 {
+private:
     string password;
+public:
+    Admin();
+    void panel(CandidateManager &candidates);
 };
-
-void adminPanel(Admin &admin, CandidateManager &candidates, AuditStack &audit);
-
 #endif
