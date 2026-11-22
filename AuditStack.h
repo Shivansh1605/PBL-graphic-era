@@ -1,21 +1,37 @@
-#ifndef AUDIT_STACK_H
-#define AUDIT_STACK_H
+#ifndef DSA_WRAPPER_H
+#define DSA_WRAPPER_H
 
-#include <stack>
 #include <string>
-
+#include "DSA.h"
 using namespace std;
-struct AuditStack
+
+/* These C++ wrapper classes let the OOP modules use the C DSA functions. */
+
+class VoteQueue
 {
-stack<string> events;
-string electionType;
-string electionTitle;
-    string electionPurpose;
+private:
+    VoteQueueC queueData;
+
+public:
+    VoteQueue();
+    bool isEmpty();
+    bool isFull();
+    void enqueue(string voterID, int candidateID);
+    bool dequeue(string &voterID, int &candidateID);
 };
 
-void configureElection(AuditStack &audit);
-void showElectionInfo(AuditStack &audit);
-void addAuditEvent(AuditStack &audit, string event);
-void showAuditEvents(AuditStack &audit);
+class AuditStack
+{
+private:
+    AuditStackC stackData;
+
+public:
+    AuditStack();
+    bool isEmpty();
+    bool isFull();
+    void push(string message);
+    string pop();
+    void display();
+};
 
 #endif
