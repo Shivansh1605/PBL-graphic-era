@@ -1,129 +1,127 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
-#include "voter.h"
-
+#include "Voter.h"
 using namespace std;
 
-void loadVoters(VoterManager &manager)
+VoterManager::VoterManager()
 {
-    manager.list.clear();
+    count = 0;
+    load();
+}
 
+void VoterManager::load()
+{
+    count = 0;
     ifstream file("voters.txt");
     string line;
 
-    while (getline(file, line))
+    while (getline(file, line) && count < 100)
     {
         stringstream ss(line);
-        Voter voter;
-        string voted;
+        string status;
 
-        if (getline(ss, voter.id, '|') &&
-            getline(ss, voter.name, '|') &&
-            getline(ss, voter.pin, '|') &&
-            getline(ss, voted, '|'))
-        {
-            voter.hasVoted = (voted == "1");
-            manager.list.push_back(voter);
-        }
+        getline(ss, ids[count], '|');
+        getline(ss, names[count], '|');
+        getline(ss, pins[count], '|');
+        getline(ss, status, '|');
+
+        voted[count] = (status == "1");
+        count++;
     }
 }
 
-void saveVoters(VoterManager &manager)
+void VoterManager::save()
 {
     ofstream file("voters.txt");
 
-    for (int i = 0; i < (int)manager.list.size(); i++)
-    {
-        file << manager.list[i].id << "|"
-             << manager.list[i].name << "|"
-             << manager.list[i].pin << "|"
-             << (manager.list[i].hasVoted ? 1 : 0) << "\n";
-    }
+    for (int i = 0; i < count; i++)
+        file << ids[i] << "|" << names[i] << "|" << pins[i]
+             << "|" << (voted[i] ? 1 : 0) << "\n";
 }
 
-int findVoter(VoterManager &manager, string id)
+int VoterManager::findVoter(string id)
 {
-    for (int i = 0; i < (int)manager.list.size(); i++)
-    {
-        if (manager.list[i].id == id)
-        {
+    for (int i = 0; i < count; i++)
+        if (ids[i] == id)
             return i;
-        }
-    }
 
     return -1;
 }
 
-void registerVoter(VoterManager &manager)
+void VoterManager::registerVoter()
 {
-    loadVoters(manager);
+    load();
 
-    Voter voter;
-
-    cout << "\n--- Voter Registration ---\n";
-    cout << "Enter voter ID (no spaces): ";
-    cin >> voter.id;
-
-    if (findVoter(manager, voter.id) != -1)
+    if (count >= 100)
     {
-        cout << "This voter ID is already registered.\n";
+        cout << "Voter capacity reached.\n";
         return;
     }
 
-    cout << "Enter name (use underscores for spaces): ";
-    cin >> voter.name;
+    string id, name, pin;
 
-    cout << "Create a numeric PIN: ";
-    cin >> voter.pin;
+    cout << "Voter ID: ";
+    cin >> id;
 
-    if (voter.pin.empty())
+    if (findVoter(id) != -1)
     {
-        cout << "PIN cannot be empty.\n";
+        cout << "Voter already exists.\n";
         return;
     }
 
-    for (int i = 0; i < (int)voter.pin.length(); i++)
+    cout << "Name (use underscore instead of spaces): ";
+    cin >> name;
+
+    cout << "Create PIN: ";
+    cin >> pin;
+
+    if (pin.length() < 4)
     {
-        if (voter.pin[i] < '0' || voter.pin[i] > '9')
-        {
-            cout << "PIN must contain digits only.\n";
-            return;
-        }
+        cout << "PIN must contain at least 4 digits.\n";
+        return;
     }
 
-    voter.hasVoted = false;
-    manager.list.push_back(voter);
+    ids[count] = id;
+    names[count] = name;
+    pins[count] = pin;
+    voted[count] = false;
+    count++;
 
-    saveVoters(manager);
-
+    save();
     cout << "Registration successful.\n";
 }
 
-bool authenticateVoter(VoterManager &manager, string id, string pin)
+bool VoterManager::checkPIN(string id, string pin)
 {
-    loadVoters(manager);
-
-    int index = findVoter(manager, id);
+    load();
+    int index = findVoter(id);
 
     if (index == -1)
-    {
         return false;
-    }
 
-    if (manager.list[index].pin == pin)
-    {
-        return true;
-    }
-
-    return false;
+    return pins[index] == pin;
 }
 
-void markVoted(VoterManager &manager, int index)
+bool VoterManager::hasVoted(string id)
 {
-    if (index >= 0 && index < (int)manager.list.size())
+    load();
+    int index = findVoter(id);
+
+    if (index == -1)
+        return false;
+
+    return voted[index];
+}
+
+void VoterManager::markVoted(string id)
+{
+    load();
+    int index = findVoter(id);
+
+    if (index != -1)
     {
-        manager.list[index].hasVoted = true;
-        saveVoters(manager);
+        voted[index] = true;
+        save();
     }
 }
