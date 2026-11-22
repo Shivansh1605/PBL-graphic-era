@@ -1,30 +1,22 @@
 #ifndef CANDIDATE_H
 #define CANDIDATE_H
-
 #include <string>
-#include <vector>
-
 using namespace std;
 
-struct Candidate
+class CandidateManager
 {
-    int id;
-    string name;
-    string label;
-    int votes;
+private:
+    int ids[100], votes[100], count;
+    string names[100];
+
+public:
+    CandidateManager();
+    void load();
+    void save();
+    int findCandidate(int id);
+    void showCandidates();
+    void addCandidate();
+    bool addVote(int id);
+    void results();
 };
-
-struct CandidateManager
-{
-    vector<Candidate> list;
-};
-
-void loadCandidates(CandidateManager &manager);
-void saveCandidates(CandidateManager &manager);
-void showCandidates(CandidateManager &manager);
-int findCandidate(CandidateManager &manager, int id);
-void addCandidate(CandidateManager &manager);
-bool countVote(CandidateManager &manager, int id);
-void showResults(CandidateManager &manager);
-
 #endif
