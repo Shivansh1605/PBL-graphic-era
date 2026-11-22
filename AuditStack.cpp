@@ -1,141 +1,72 @@
 #include <iostream>
-#include <fstream>
-#include <limits>
-#include "AuditStack.h"
-
+#include <cstring>
+#include "DSAWrapper.h"
 using namespace std;
 
-bool loadElectionConfig(AuditStack &audit)
+VoteQueue::VoteQueue()
 {
-    ifstream file("election_config.txt");
+    queueInit(&queueData);
+}
 
-    if (!getline(file, audit.electionType))
-    {
+bool VoteQueue::isEmpty()
+{
+    return queueIsEmpty(&queueData);
+}
+
+bool VoteQueue::isFull()
+{
+    return queueIsFull(&queueData);
+}
+
+void VoteQueue::enqueue(string voterID, int candidateID)
+{
+    if (!queueEnqueue(&queueData, voterID.c_str(), candidateID))
+        cout << "Queue is full.\n";
+}
+
+bool VoteQueue::dequeue(string &voterID, int &candidateID)
+{
+    char id[ID_LENGTH];
+
+    if (!queueDequeue(&queueData, id, &candidateID))
         return false;
-    }
 
-    if (!getline(file, audit.electionTitle))
-    {
-        return false;
-    }
-
-    if (!getline(file, audit.electionPurpose))
-    {
-        return false;
-    }
-
+    voterID = id;
     return true;
 }
 
-void saveElectionConfig(AuditStack &audit)
+AuditStack::AuditStack()
 {
-    ofstream file("election_config.txt");
-
-    file << audit.electionType << "\n";
-    file << audit.electionTitle << "\n";
-    file << audit.electionPurpose << "\n";
+    stackInit(&stackData);
 }
 
-void configureElection(AuditStack &audit)
+bool AuditStack::isEmpty()
 {
-    if (loadElectionConfig(audit))
-    {
-        cout << "Saved election configuration loaded.\n";
-        addAuditEvent(audit, "Loaded election: " + audit.electionTitle);
-        return;
-    }
-
-    int choice = 0;
-
-    cout << "======= SET UP ELECTION =======\n";
-    cout << "1. School election\n";
-    cout << "2. College election\n";
-    cout << "3. Product / feature poll\n";
-    cout << "4. Company / employee poll\n";
-    cout << "5. General-purpose election\n";
-    cout << "Choose election type: ";
-
-    while (!(cin >> choice) || choice < 1 || choice > 5)
-    {
-        cin.clear();
-        cin.ignore(numeric_limits<streamsize>::max(), '\n');
-
-        cout << "Enter a number from 1 to 5: ";
-    }
-
-    cin.ignore(numeric_limits<streamsize>::max(), '\n');
-
-    if (choice == 1)
-    {
-        audit.electionType = "School";
-    }
-    else if (choice == 2)
-    {
-        audit.electionType = "College";
-    }
-    else if (choice == 3)
-    {
-        audit.electionType = "Product Poll";
-    }
-    else if (choice == 4)
-    {
-        audit.electionType = "Company";
-    }
-    else
-    {
-        audit.electionType = "General";
-    }
-
-    cout << "Enter election title: ";
-    getline(cin, audit.electionTitle);
-
-    cout << "Enter the exact purpose/question: ";
-    getline(cin, audit.electionPurpose);
-
-    if (audit.electionTitle.empty())
-    {
-        audit.electionTitle = audit.electionType + " Election";
-    }
-
-    if (audit.electionPurpose.empty())
-    {
-        audit.electionPurpose = "Choose one of the listed options.";
-    }
-
-    saveElectionConfig(audit);
-
-    addAuditEvent(audit, "Configured election: " + audit.electionTitle);
-
-    cout << "Election configuration saved.\n";
+    return stackIsEmpty(&stackData);
 }
 
-void showElectionInfo(AuditStack &audit)
+bool AuditStack::isFull()
 {
-    cout << "\nElection type: " << audit.electionType << "\n";
-    cout << "Title: " << audit.electionTitle << "\n";
-    cout << "Purpose: " << audit.electionPurpose << "\n";
+    return stackIsFull(&stackData);
 }
 
-void addAuditEvent(AuditStack &audit, string event)
+void AuditStack::push(string message)
 {
-    audit.events.push(event);
+    if (!stackPush(&stackData, message.c_str()))
+        cout << "Audit stack is full.\n";
 }
 
-void showAuditEvents(AuditStack &audit)
+string AuditStack::pop()
 {
-    if (audit.events.empty())
-    {
-        cout << "No audit events in this session.\n";
-        return;
-    }
+    char message[AUDIT_LENGTH];
 
-    stack<string> copy = audit.events;
+    if (!stackPop(&stackData, message))
+        return "";
 
-    cout << "\n--- Audit Events (latest first) ---\n";
+    return string(message);
+}
 
-    while (!copy.empty())
-    {
-        cout << "- " << copy.top() << "\n";
-        copy.pop();
-    }
+void AuditStack::display()
+{
+    stackDisplay(&stackData);
 }
